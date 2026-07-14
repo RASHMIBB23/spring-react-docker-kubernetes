@@ -33,3 +33,6 @@ build/
 
 ### VS Code ###
 .vscode/
+minikube-linux-amd64
+kind
+kubectl
