@@ -1,19 +1,20 @@
-# Use an offical JDK runtime as a parent image
-FROM openjdk:17-jdk-alpine
+# ---- Stage 1: Build the application ----
+FROM maven:3.9-eclipse-temurin-21 AS builder
 
-# Set the working directory inside the container
-WORKDIR /
+WORKDIR /app
 
-# Copy the spring Boot jar to the container
-COPY target/demo-0.0.1-SNAPSHOT.jar //
+COPY pom.xml .
+COPY src ./src
 
-# Expose the port the app runs on
+RUN mvn clean package -DskipTests=true
+
+# ---- Stage 2: Run the application ----
+FROM eclipse-temurin:21-jre
+
+WORKDIR /app
+
+COPY --from=builder /app/target/*.jar app.jar
+
 EXPOSE 8080
 
-# Comand to run the Spring Boot app
-ENTRYPOINT ["java", "-jar", "/demo-0.0.1-SNAPSHOT.jar"]
-
-# The following command is used to create a my sql image:
-    # docker run --detach --name mysql -p 6604:3306 -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=test -e MYSQL_USER=samini -e MYSQL_PASSWORD=aaAA11!! -d mysql
-# The following docker commands interact with Database(links to mysql conainer) with mysql client
-    # docker run -it --link mysql:mysql --rm mysql sh -c 'exec mysql -h"$MYSQL_PORT_3306_TCP_ADDR" -p"$MYSQL_PORT_3306_TCP_PORT" -uroot -p"$MYSQL_ENV_MYSQL_ROOT_PASSWORD"'
+ENTRYPOINT ["java", "-jar", "app.jar"]
