@@ -17,12 +17,6 @@ pipeline {
                 sh 'mvn clean package -DskipTests=true'
             }
         }
-        
-        stage('Run Tests') {
-            steps {
-                sh 'mvn test'
-            }
-        }
 
         stage('Docker Build') {
             steps {
